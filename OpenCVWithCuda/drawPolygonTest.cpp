@@ -1,3 +1,6 @@
+/**
+*	最基本的画出一个多边形， 判断两个点是否在多边形里面
+*/
 #include <iostream>    
 #include <opencv2/opencv.hpp>
 #include "opencv2\highgui\highgui.hpp"

@@ -33,9 +33,6 @@
     <ClCompile Include="drawPolygon.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="drawPolygonTest.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="drawPolygonTest2.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

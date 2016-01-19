@@ -1,6 +1,9 @@
 
 /**
- 图片上点很多点，之后连成多边形。 
+1 图片上点很多点，之后连成多边形。
+  左单击画点，右单击确定最后形成的多边形
+2. 含有调用的 判断一个点是否在一个多边形（区域）里面的函数使用
+3. 含有自动画出一张全黑图的方法 直接调用zeros方法
 reference:
 http://breckon.eu/toby/teaching/dip/practicals/ia/polygons.cpp
 
