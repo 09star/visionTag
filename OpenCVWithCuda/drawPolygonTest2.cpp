@@ -21,7 +21,7 @@ static vector<Point> contour;
 
 static Mat img  ;
 static Mat copyImg;
-int main( )
+int main()
 {    
 	// create a RGB colour image (set it to a black background)
 	

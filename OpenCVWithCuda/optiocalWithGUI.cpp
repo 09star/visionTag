@@ -1,12 +1,13 @@
 ﻿
-//  OpticalFlow_MutilpleObject.cpp
-//  OpenCVPlay
-//
-//  Created by starsplendid on 15/6/24.
-//  Copyright (c) 2015年 starsplendid. All rights reserved.
- //代码基础来源：http://blog.sina.com.cn/s/blog_662c78590100yyeg.html
-//
+/**
 
+reference:
+1. drawPolygonTest2.cpp  :　draw polygon method　＋ mouse　controller
+2. opticalFlow_MultipleObject.cpp : optical flow function to track
+2.
+http://breckon.eu/toby/teaching/dip/practicals/ia/polygons.cpp
+
+**/
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -19,10 +20,20 @@
 #include "opencv2\cudawarping.hpp"
 #include <opencv2\cudabgsegm.hpp>  
 #include <opencv2\cudaoptflow.hpp>  
-
-using namespace cv;
 using namespace std;
+using namespace cv;
+ 
+// draw and controller 
+void onMouse(int event,int x,int y, int flags, void* userdata);
 
+static vector<Point> contour;
+
+static Mat controllerImg  ;
+static Mat controllerCopyImg;
+
+static int controllerStatus ; // 0 need set  ; 1 already set
+
+// track 
 string intToString(int number){
     
     std::stringstream ss;
@@ -113,19 +124,39 @@ int drawAllContours(Mat& inputMat,Mat& orignialMat){
     return 0 ;
 }
 int main()
-{
-    //    VideoCapture cap(0);
-    //    ofstream myfile;
-    //    myfile.open ("flowChange1.txt");
-    Mat prevgray, gray, flow, cflow, frame,binaryPic,binaryPic2;
+{    
+	controllerStatus = 0 ; 
+	cout<< "getCudaEnabledDeviceCount : " <<cuda::getCudaEnabledDeviceCount()<<endl ;
+	 //variable
+	Mat prevgray, gray, flow, cflow, frame,binaryPic,binaryPic2;
 	Mat  dImg_rg, dimg; 
 	cuda::GpuMat oldGpuImg,rGpuImg_Bgray,oldGpuImg_gray ,gpuFlow; 
 	cuda::GpuMat nowGpuImg,nowGpuImg_gray ; 
     vector<vector<Point> > contours;
 	Ptr <cuda::FarnebackOpticalFlow> farnebackOF = cuda::FarnebackOpticalFlow::create(5,0.5, false,15, 3, 5, 1.2, 0);
     
-	 unsigned long Atime, Btime;
-	 float TakeTime;
+	unsigned long Atime, Btime;
+	float TakeTime;
+	VideoCapture cap("../twoTrain.avi");
+        
+    if (!cap.isOpened())
+    {
+        cout<< "Error Acquireing video feed\n";
+        return -1;
+    }
+	
+
+	cap>>controllerImg;
+
+	namedWindow("controller",1);
+	
+	setMouseCallback("controller",onMouse,&controllerImg);
+	imshow( "controller", controllerImg );
+	if (waitKey(100) >= 0)
+	{
+		return 0;
+	}
+
 	do
     {
         VideoCapture cap("../twoTrain.avi");
@@ -200,7 +231,7 @@ int main()
 			//drawBiggestContours(binaryPic2,cflow,sumX/numOfSelectedPoint,sumY/numOfSelectedPoint);  
                 
             imshow("FLOW", cflow);
-             imshow("Binary", binaryPic);
+            imshow("Binary", binaryPic);
             imshow("Binary dilate", binaryPic2);
            
 
@@ -221,5 +252,97 @@ int main()
         cap.release();
         
     } while (1);
+
     return 0;
+}
+
+void onMouse(int event,int x,int y, int flags, void* userdata){
+	 // 左单击 EVENT_LBUTTONDOWN 右单击 EVENT_RBUTTONDOWN 中间 EVENT_MBUTTONDOWN 移动 EVENT_MOUSEMOVE 
+	//cout << " button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
+	
+	if  ( event == EVENT_LBUTTONDOWN )
+     {
+         cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
+     
+		 contour.push_back(Point(x,y));
+		 
+		Mat & Img = (*(Mat*)userdata);
+		controllerCopyImg.release();
+		Img.copyTo(controllerCopyImg);
+		for( int i = 0; i < contour.size(); i++ ){
+			rectangle(controllerCopyImg, contour[i],  contour[i], Scalar(0, 0, 255), 3, 8, 0); // RED point
+		}
+		
+
+		imshow("controller",controllerCopyImg);
+	
+	 }
+	 else if  ( event == EVENT_RBUTTONDOWN  )
+	 {
+		  cout << "Right button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
+		    Mat & Img = (*(Mat*)userdata);
+			controllerCopyImg.release();
+			Img.copyTo(controllerCopyImg);
+
+			// create a pointer to the data as an array of points (via a conversion to 
+			// a Mat() object)
+
+			const cv::Point *pts = (const cv::Point*) Mat(contour).data;
+			int npts = Mat(contour).rows;
+
+			std::cout << "Number of polygon vertices: " << npts << std::endl;
+	
+			// draw the polygon 
+
+			polylines(controllerCopyImg, &pts,&npts, 1,
+	    				true, 			// draw closed contour (i.e. joint end to start) 
+						Scalar(0,255,0),// colour RGB ordering (here = green) 
+	    				3, 		        // line thickness
+						CV_AA, 0);
+
+
+			// do point in polygon test (by conversion/cast to a Mat() object)
+			// define and test point one (draw it in red)
+
+			Point2f test_pt;
+			test_pt.x = 150;
+			test_pt.y = 75;
+
+			rectangle(controllerCopyImg, test_pt, test_pt, Scalar(0, 0, 255), 3, 8, 0); // RED point
+	
+			if (pointPolygonTest(Mat(contour), test_pt, true) > 0){
+				std::cout << "RED {" << test_pt.x << "," << test_pt.y
+						  << "} is in the polygon (dist. " 
+						  << pointPolygonTest(Mat(contour), test_pt, 1) << ")" 
+						  << std::endl;
+			}
+
+			// define and test point two (draw it in blue)
+
+			test_pt.x = 50;
+			test_pt.y = 350;
+	 
+			rectangle(controllerCopyImg, test_pt, test_pt, Scalar(255, 0, 0), 3, 8, 0); // BLUE point
+	
+			if (pointPolygonTest(Mat(contour), test_pt, true) < 0){
+				std::cout << "BLUE {" << test_pt.x << "," << test_pt.y
+						  << "} is NOT in the polygon (dist. " 
+						  << pointPolygonTest(Mat(contour), test_pt, 1) << ")" 
+						  << std::endl;
+			}
+
+			// pointPolygonTest :- 
+			// "The function determines whether the point is inside a contour, outside, 
+			// or lies on an edge (or coincides with a vertex). It returns positive 
+			// (inside), negative (outside) or zero (on an edge) value, correspondingly. 
+			// When measureDist=false , the return value is +1, -1 and 0, respectively. 
+			// Otherwise, the return value it is a signed distance between the point 
+			// and the nearest contour edge." - OpenCV Manual version 2.1
+	 
+
+			imshow("controller",controllerCopyImg);
+
+			// refresh the  vector of points 
+			contour.clear();
+	 }
 }

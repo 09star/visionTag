@@ -150,9 +150,7 @@
     <ClCompile Include="CUDA_OpticalFlow.cpp" />
     <ClCompile Include="drawCircle.cpp" />
     <ClCompile Include="drawPolygon.cpp" />
-    <ClCompile Include="drawPolygonTest2.cpp" />
-    <ClCompile Include="opticalFlowWithCuda2.cpp" />
-    <ClCompile Include="OpticalFlow_MultipleObject.cpp" />
+    <ClCompile Include="optiocalWithGUI.cpp" />
     <ClCompile Include="testCuda.cpp" />
   </ItemGroup>
   <ItemGroup>

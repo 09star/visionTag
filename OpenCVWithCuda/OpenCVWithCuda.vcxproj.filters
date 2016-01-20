@@ -18,12 +18,6 @@
     <ClCompile Include="CUDA_OpticalFlow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="opticalFlowWithCuda2.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="OpticalFlow_MultipleObject.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="testCuda.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -33,7 +27,7 @@
     <ClCompile Include="drawPolygon.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="drawPolygonTest2.cpp">
+    <ClCompile Include="optiocalWithGUI.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
