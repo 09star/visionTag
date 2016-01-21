@@ -31,8 +31,15 @@ static vector<Point> contour;
 static Mat controllerImg  ;
 static Mat controllerCopyImg;
 
-static int controllerStatus ; // 0 need set  ; 1 already set
+//@isContourDone: in controller img , is the contour area ie. ROI be draw  0 for false 1 for done
+static int isContourDone ;
+/*
+	@contourCopy:
 
+	use to copy the contour , because after draw the contour the contour will be clear ,
+	we must copy the contour data before clear and draw the contour in the Real show frame
+*/
+static vector<Point> contourCopy;
 // track 
 string intToString(int number){
     
@@ -125,7 +132,7 @@ int drawAllContours(Mat& inputMat,Mat& orignialMat){
 }
 int main()
 {    
-	controllerStatus = 0 ; 
+	isContourDone = 0 ; 
 	cout<< "getCudaEnabledDeviceCount : " <<cuda::getCudaEnabledDeviceCount()<<endl ;
 	 //variable
 	Mat prevgray, gray, flow, cflow, frame,binaryPic,binaryPic2;
@@ -229,7 +236,26 @@ int main()
                 
            drawAllContours(binaryPic2,cflow);
 			//drawBiggestContours(binaryPic2,cflow,sumX/numOfSelectedPoint,sumY/numOfSelectedPoint);  
-                
+            
+		   cout<< "isContourDone "<< isContourDone << endl ; 
+		   if(isContourDone ==1 ){
+				// create a pointer to the data as an array of points (via a conversion to 
+				// a Mat() object)
+
+				const cv::Point *pts = (const cv::Point*) Mat(contourCopy).data;
+				int npts = Mat(contourCopy).rows;
+
+				std::cout << "Number of polygon vertices: " << npts << std::endl;
+	
+				// draw the polygon 
+
+				polylines(cflow, &pts,&npts, 1,
+	    					true, 			// draw closed contour (i.e. joint end to start) 
+							Scalar(0,255,0),// colour RGB ordering (here = green) 
+	    					3, 		        // line thickness
+							CV_AA, 0);
+
+		   }
             imshow("FLOW", cflow);
             imshow("Binary", binaryPic);
             imshow("Binary dilate", binaryPic2);
@@ -275,7 +301,7 @@ void onMouse(int event,int x,int y, int flags, void* userdata){
 		
 
 		imshow("controller",controllerCopyImg);
-	
+		isContourDone = 0 ; 
 	 }
 	 else if  ( event == EVENT_RBUTTONDOWN  )
 	 {
@@ -290,8 +316,6 @@ void onMouse(int event,int x,int y, int flags, void* userdata){
 			const cv::Point *pts = (const cv::Point*) Mat(contour).data;
 			int npts = Mat(contour).rows;
 
-			std::cout << "Number of polygon vertices: " << npts << std::endl;
-	
 			// draw the polygon 
 
 			polylines(controllerCopyImg, &pts,&npts, 1,
@@ -342,6 +366,8 @@ void onMouse(int event,int x,int y, int flags, void* userdata){
 
 			imshow("controller",controllerCopyImg);
 
+			isContourDone = 1 ; 
+			contourCopy = vector<Point> (contour); 
 			// refresh the  vector of points 
 			contour.clear();
 	 }
