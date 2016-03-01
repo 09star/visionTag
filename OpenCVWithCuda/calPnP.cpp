@@ -42,6 +42,10 @@ static Mat cameraMatrix = (Mat_<float>(3,3) << 1.4572068353989741e+003, 0, 3.195
 static Mat distCoeffs = (Mat_<float>(5,1) << 5.6210676080216342e-002, 2.0568555032574163e+000, 0, 0, -4.4769469616519928e+001);
 void onMouse(int event,int x,int y, int flags, void* userdata);
 
+static 	Mat  uvPoint = (Mat_<double>(3,1) << 0,0,1); ;
+static Mat rvec =(Mat_<double>(1,3)); 
+static Mat tvec =(Mat_<double>(1,3)) ;
+static Mat rotationMatrix =(Mat_<double>(3,3)); 
 int main(){
 
 	int x = -1;
@@ -53,11 +57,14 @@ int main(){
 	objcetPoints.push_back(Point3f(0,-150,0));
 	objcetPoints.push_back(Point3f(-150,0,0));
 
-	Mat rvec, tvec ,rotationMatrix; 
+	
 
-	rvec.create(1,3,cv::DataType<double>::type);
-	tvec.create(1,3,cv::DataType<double>::type);
-	rotationMatrix.create(3,3,cv::DataType<double>::type);
+	//rvec.create(1,3,cv::DataType<double>::type);
+	//tvec.create(1,3,cv::DataType<double>::type);
+	//rotationMatrix.create(3,3,cv::DataType<double>::type);
+
+
+
 	VideoCapture cap(0);
         
     if (!cap.isOpened())
@@ -98,24 +105,31 @@ int main(){
 
 			// 输出mat 参考http://blog.sina.com.cn/s/blog_662c78590100yybq.html
 
-			cout<< "objectPoints "<< objcetPoints <<endl ; 
-			cout<<" imagePints" << contour<<endl ; 
-			cout<<" cameraMatrix" << cameraMatrix<<endl ;
-			cout<<" distCoeffs" << distCoeffs<<endl ;
+			cout<< "objectPoints "<<endl<< objcetPoints <<endl<<endl ; 
+			cout<<" imagePints" <<endl<< contour<<endl<<endl ; 
+			cout<<" cameraMatrix" <<endl<< cameraMatrix<<endl<<endl ;
+			cout<<" distCoeffs"<<endl << distCoeffs<<endl <<endl;
 
 			solvePnP(objcetPoints,contour,cameraMatrix,distCoeffs,rvec,tvec);
 			
+	
+			cout<<"rvec "<<endl<< rvec<<endl<<endl;
+			cout<<"tvec "<<endl<< tvec<<endl<<endl;
+
+			cv::Rodrigues(rvec,rotationMatrix);
+
+			cout<<"rotationMatrix "<<endl<< rotationMatrix<<endl<<endl;
+
+
 			
-
-			cout<<"rvec "<< rvec<<endl;
-			cout<<"tvec "<< tvec<<endl;
-
 			break; 
 		}
 
-
+		
 	}
 
+
+	
 	
 	//while(waitKey(15) != 27){
 	//
@@ -124,7 +138,31 @@ int main(){
 	return 0 ; 
 }
 
+void doTranslation(){
+	cout<<"doTranslation begin "<<endl;
+	cv::Mat tempMat, tempMat2;
+			double s, zConst = 0;
+			cout<<"rotationMatrix inv"<<rotationMatrix.inv()<<endl ; 
+				cout<<"cameraMatrix.inv()"<<cameraMatrix.inv()<<endl ; 
+				rotationMatrix.convertTo(rotationMatrix,CV_64FC1);
+				rotationMatrix.convertTo(cameraMatrix,CV_64FC1);
+				cout<<"rotationMatrix.inv() * cameraMatrix.inv() "<<rotationMatrix.inv() * cameraMatrix.inv() <<endl ; 
+			tempMat = rotationMatrix.inv() * cameraMatrix.inv() * uvPoint;
+			cout<<"tempMat"<<tempMat<<endl ; 
 
+			tempMat2 = rotationMatrix.inv() * tvec;
+			cout<<"tempMat2"<<tempMat<<endl ; 
+			s = zConst + tempMat2.at<double>(2,0);
+			s /= tempMat.at<double>(2,0);
+			cout<<"s"<<s<<endl ; 
+
+			cv::Mat wcPoint = rotationMatrix.inv() * (s * cameraMatrix.inv() * uvPoint - tvec);
+		
+
+			Point3f realPoint(wcPoint.at<double>(0, 0), wcPoint.at<double>(1, 0), wcPoint.at<double>(2, 0));
+
+			cout<<"image point "<<endl<<uvPoint<< endl<< "to real point "<<endl <<wcPoint<<endl<<endl ;
+}
 void onMouse(int event,int x,int y, int flags, void* userdata){
 	 // 左单击 EVENT_LBUTTONDOWN 右单击 EVENT_RBUTTONDOWN 中间 EVENT_MBUTTONDOWN 移动 EVENT_MOUSEMOVE 
 	//cout << " button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
@@ -132,11 +170,19 @@ void onMouse(int event,int x,int y, int flags, void* userdata){
 	if  ( event == EVENT_LBUTTONDOWN )
      {
         cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
-     
-		contour.push_back(Point(x,y));
+		
+		if(count_flag>=4){
+			uvPoint.at<double>(0,0) = x+0.0; //got this point using mouse callback
+			uvPoint.at<double>(1,0) = y+0.0;
+			cout<<"uvPoint"<<uvPoint<<endl ; 
+			doTranslation();
+			count_flag= count_flag +1   ; 
+		}else{
+			contour.push_back(Point(x,y));
 	 	
-		 
-		count_flag= count_flag +1   ; 
+			count_flag= count_flag +1   ; 
+		}
+		
 	
 	 }
 }
