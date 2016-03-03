@@ -128,12 +128,11 @@ int main(){
 		
 	}
 
-
+	for( int i = 0; i < contour.size(); i++ ){
+		rectangle(img, contour[i],  contour[i], Scalar(0, 0, 255), 3, 8, 0); // RED point
+	}
+	imshow("window1",img);
 	
-	
-	//while(waitKey(15) != 27){
-	//
-	//}
 	waitKey(0);
 	return 0 ; 
 }
