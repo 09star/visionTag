@@ -140,20 +140,48 @@ int main(){
 
 void doTranslation(){
 	cout<<"doTranslation begin "<<endl;
+	//Mat m = (Mat_<float>(3,3) << 1.4572068353989741e+003, 0, 3.1950000000000000e+002,0, 1.4572068353989741e+003, 2.3950000000000000e+002,0, 0, 1);
 	cv::Mat tempMat, tempMat2;
 			double s, zConst = 0;
-			cout<<"rotationMatrix inv"<<rotationMatrix.inv()<<endl ; 
-				cout<<"cameraMatrix.inv()"<<cameraMatrix.inv()<<endl ; 
-				rotationMatrix.convertTo(rotationMatrix,CV_64FC1);
-				rotationMatrix.convertTo(cameraMatrix,CV_64FC1);
-				cout<<"rotationMatrix.inv() * cameraMatrix.inv() "<<rotationMatrix.inv() * cameraMatrix.inv() <<endl ; 
+			
+			rotationMatrix.convertTo(rotationMatrix,CV_64FC1);
+			cameraMatrix.convertTo(cameraMatrix,CV_64FC1);
+				
 			tempMat = rotationMatrix.inv() * cameraMatrix.inv() * uvPoint;
-			cout<<"tempMat"<<tempMat<<endl ; 
+			
 
 			tempMat2 = rotationMatrix.inv() * tvec;
-			cout<<"tempMat2"<<tempMat<<endl ; 
+		
 			s = zConst + tempMat2.at<double>(2,0);
 			s /= tempMat.at<double>(2,0);
+
+		/*	double m11,m12,m14,m21,m22,m24,m31,m32,m34 ; 
+			double u,v;
+			double ay,ax,by,bx,c ; 
+			m11 = rotationMatrix.at<double>(0,0);
+			m12 = rotationMatrix.at<double>(0,1);
+			m21 = rotationMatrix.at<double>(1,0);
+			m22 = rotationMatrix.at<double>(1,1);
+			m31 = rotationMatrix.at<double>(2,0);
+			m32 = rotationMatrix.at<double>(2,1);
+
+			m14 = tvec.at<double>(0,0);
+			m24 = tvec.at<double>(1,0);
+			m34 = tvec.at<double>(2,0);
+
+			u = uvPoint.at<double>(0,0);
+			v = uvPoint.at<double>(1,0);
+
+			c= m12*m21-m11*m22  ;
+			ay = m21*u-m11*v ; 
+			by = m14*m21 - m11*m24 ;
+
+			ax = m22*u-m12*v ; 
+			bx = m14*m22-m12*m24 ; 
+
+
+			s = ((m31*bx-m32*by)/c+m34)/(1+(m31*ax-m32*ay)/c);*/
+
 			cout<<"s"<<s<<endl ; 
 
 			cv::Mat wcPoint = rotationMatrix.inv() * (s * cameraMatrix.inv() * uvPoint - tvec);
