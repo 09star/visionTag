@@ -2,7 +2,7 @@
  *Created by starsplendid on 15/6/18.
  Copyright (c) 2015年 starsplendid. All rights reserved.
  代码基础来源：http://blog.sina.com.cn/s/blog_662c78590100yyeg.html
- *
+ *  最基本的光流法，使用 calcOpticalFlowFarneback 稠密光流法；  没有gpu 加速
  */
 #include "opencv2/video/tracking.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -106,7 +106,7 @@ int drawAllContours(Mat& inputMat,Mat& orignialMat){
 }
 
 
-int maindd()
+int main()
 {
 //    VideoCapture cap(0);
     //    ofstream myfile;
@@ -116,7 +116,7 @@ int maindd()
 
     do
     {
-        VideoCapture cap("../out.avi");
+        VideoCapture cap("recordVideo.avi");
         
         if (!cap.isOpened())
         {

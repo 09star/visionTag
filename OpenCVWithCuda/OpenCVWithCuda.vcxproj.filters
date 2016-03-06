@@ -27,10 +27,10 @@
     <ClCompile Include="drawPolygon.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="testOpticalFlowWithCuda.cpp">
+    <ClCompile Include="videoProcessToGetPosition.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="recordVideo.cpp">
+    <ClCompile Include="testOpticalFlow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
