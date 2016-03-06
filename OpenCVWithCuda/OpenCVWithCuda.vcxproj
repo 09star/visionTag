@@ -147,11 +147,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="calPnP.cpp" />
     <ClCompile Include="CUDA_OpticalFlow.cpp" />
     <ClCompile Include="drawCircle.cpp" />
     <ClCompile Include="drawPolygon.cpp" />
+    <ClCompile Include="getSystemms.cpp" />
     <ClCompile Include="testCuda.cpp" />
+    <ClCompile Include="testOpticalFlowWithCuda.cpp" />
+    <ClCompile Include="testRecordVideo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CUDA_OpticalFlow.h" />

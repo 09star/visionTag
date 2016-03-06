@@ -27,7 +27,13 @@
     <ClCompile Include="drawPolygon.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="calPnP.cpp">
+    <ClCompile Include="testOpticalFlowWithCuda.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="getSystemms.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="testRecordVideo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
