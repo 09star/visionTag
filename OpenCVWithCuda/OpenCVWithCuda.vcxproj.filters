@@ -30,10 +30,7 @@
     <ClCompile Include="testOpticalFlowWithCuda.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="getSystemms.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="testRecordVideo.cpp">
+    <ClCompile Include="recordVideo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

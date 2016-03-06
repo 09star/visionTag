@@ -1,6 +1,11 @@
 
 /*
 * 已知内参矩阵，通过solvePnp 方法 传入 实际世界 参考点，与像素坐标参考点。 来计算 外参矩阵 RT 即摄像头pose 
+	参考：
+	http://answers.opencv.org/question/62779/image-coordinate-to-world-coordinate-opencv/
+ 
+    http://stackoverflow.com/questions/30502687/image-coordinate-to-world-coordinate-opencv
+
 */
 #include <iostream>    
 #include <opencv2/opencv.hpp>
