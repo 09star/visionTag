@@ -128,7 +128,7 @@ int main()
 	 float TakeTime;
 	do
     {
-        VideoCapture cap("../twoTrain.avi");
+        VideoCapture cap("recordVideo.avi");
         
         if (!cap.isOpened())
         {
@@ -204,7 +204,7 @@ int main()
             imshow("Binary dilate", binaryPic2);
            
 
-            if (waitKey(100) >= 0)
+            if (waitKey(40) >= 0)
             {
                 break;
             }

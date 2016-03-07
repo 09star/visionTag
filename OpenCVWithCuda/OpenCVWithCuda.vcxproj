@@ -151,8 +151,7 @@
     <ClCompile Include="drawCircle.cpp" />
     <ClCompile Include="drawPolygon.cpp" />
     <ClCompile Include="testCuda.cpp" />
-    <ClCompile Include="testOpticalFlow.cpp" />
-    <ClCompile Include="videoProcessToGetPosition.cpp" />
+    <ClCompile Include="videoProcessSingleObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CUDA_OpticalFlow.h" />

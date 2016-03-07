@@ -27,10 +27,7 @@
     <ClCompile Include="drawPolygon.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="videoProcessToGetPosition.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="testOpticalFlow.cpp">
+    <ClCompile Include="videoProcessSingleObject.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
