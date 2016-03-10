@@ -153,29 +153,36 @@ static Mat rvec =(Mat_<double>(1,3));
 static Mat tvec =(Mat_<double>(1,3)) ;
 static Mat rotationMatrix =(Mat_<double>(3,3)); 
 
-static double s ; 
+
 // calibration end 
+
 Point3f doTranslate(Point2d imagePoint){
+
 	uvPoint.at<double>(0,0) = imagePoint.x+0.0; //got this point using mouse callback
 	uvPoint.at<double>(1,0) = imagePoint.y+0.0;
+	
+	cv::Mat tempMat, tempMat2;
+	double s, zConst = 0;
+
+	cout<<"DoTranslate ("<<uvPoint.at<double>(0,0)<<","<<uvPoint.at<double>(1,0)<<") ->";
+	
+	tempMat = rotationMatrix.inv() * cameraMatrix.inv() * uvPoint;
+			
+	tempMat2 = rotationMatrix.inv() * tvec;
+		
+	s = zConst + tempMat2.at<double>(2,0);
+	s /= tempMat.at<double>(2,0);
 	cv::Mat wcPoint = rotationMatrix.inv() * (s * cameraMatrix.inv() * uvPoint - tvec);
+
 	Point3f realPoint(wcPoint.at<double>(0, 0), wcPoint.at<double>(1, 0), wcPoint.at<double>(2, 0));
+	cout<<"("<<realPoint.x<<","<<realPoint.y<<","<<realPoint.z<<") with s="<<s <<endl ;
 	return realPoint ; 
 }
-void doTranslatePrepation(){
-	cv::Mat tempMat, tempMat2;
-			double  zConst = 0;
-			
-			rotationMatrix.convertTo(rotationMatrix,CV_64FC1);
-			cameraMatrix.convertTo(cameraMatrix,CV_64FC1);
-				
-			tempMat = rotationMatrix.inv() * cameraMatrix.inv() * uvPoint;
-			
 
-			tempMat2 = rotationMatrix.inv() * tvec;
-		
-			s = zConst + tempMat2.at<double>(2,0);
-			s /= tempMat.at<double>(2,0);
+void doTranslatePrepation(){
+	
+			rotationMatrix.convertTo(rotationMatrix,CV_64FC1);
+			cameraMatrix.convertTo(cameraMatrix,CV_64FC1);					
 }
 int main()
 {
@@ -202,9 +209,9 @@ int main()
 
 		double totalFrames = cap.get(CV_CAP_PROP_FRAME_COUNT); 
 
-		double firstFrameTime =  1457258395516; 
+		double firstFrameTime =  1457528633080; 
 
-		double lastFrameTime = 1457258404560;
+		double lastFrameTime = 1457528642103;
 
 		double perFrame = (lastFrameTime-firstFrameTime)/(totalFrames-1);
 
@@ -273,7 +280,7 @@ int main()
 			cout<<sumX/numOfSelectedPoint<<","<<sumY/numOfSelectedPoint <<endl;
 
 			if(numOfSelectedPoint>0){
-				imagePoints.push_back(Point2d(sumX/numOfSelectedPoint,sumY/numOfSelectedPoint ));
+				imagePoints.push_back(Point2d((int)(sumX/numOfSelectedPoint),(int)(sumY/numOfSelectedPoint) ));
 				timeStampList.push_back(firstFrameTime+frameNum*perFrame);
 			}
 			Mat dilateElement = getStructuringElement( MORPH_RECT,Size(10,10));
@@ -404,17 +411,18 @@ int main()
 
 	// save result 
 	 ofstream file("singleVideoProcessResult.txt");
+	 file<< fixed ;
 	 for( int i = 0; i < realWorldPoints.size(); i++ ){
+		 cout<<  realWorldPoints[i].x<<","<<realWorldPoints[i].y<<","<<realWorldPoints[i].z<<","<< timeStampList[i] <<endl ; 
 		 file<< realWorldPoints[i].x<<","<<realWorldPoints[i].y<<","<<realWorldPoints[i].z<<","<< timeStampList[i]<<endl; 
 	 }
 	 file.close(); 
 	 cout<<"end"<<endl;
-	//waitKey(0);
+	// waitKey(0);
 
     
     return 0;
 }
-
 
 
 void doTranslation(){
