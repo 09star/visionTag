@@ -18,16 +18,13 @@
     <ClCompile Include="CUDA_OpticalFlow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="testCuda.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="drawCircle.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="drawPolygon.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="videoProcessSingleObject.cpp">
+    <ClCompile Include="videoProcessOffline.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

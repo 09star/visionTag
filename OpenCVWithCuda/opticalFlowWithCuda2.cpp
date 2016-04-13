@@ -50,7 +50,7 @@ static void download(const cuda::GpuMat& d_mat, vector< uchar>& vec);
 static void drawArrows(Mat& frame, const vector< Point2f>& prevPts, const vector< Point2f>& nextPts, const vector< uchar>& status, Scalar line_color = Scalar(0, 0, 255));
 
 
-void maincuda()
+void main()
 {
  cout<< "getCudaEnabledDeviceCount : " <<cuda::getCudaEnabledDeviceCount()<<endl ;
  //variable
