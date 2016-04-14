@@ -137,6 +137,7 @@ static vector<Point2f> contour;
 
 static Mat img  ;
 static Mat copyImg;
+
 /*
 
 <camera_matrix type_id="opencv-matrix">
@@ -164,6 +165,13 @@ static Mat rvec =(Mat_<double>(1,3));
 static Mat tvec =(Mat_<double>(1,3)) ;
 static Mat rotationMatrix =(Mat_<double>(3,3)); 
 
+
+// 手动
+static	 vector<Point2d> imagePoints_hand  ; 
+static	vector<double>  timeStampList_hand  ; 
+static	vector<Point3f> realWorldPoints_hand ; 
+static	vector<int>     frameNumList_hand ;
+static	int frameNum_hand ; 
 
 // calibration end 
 
@@ -253,6 +261,7 @@ int main()
 		vector<Point2d> imagePoints  ; 
 		vector<double> timeStampList  ; 
 		vector<Point3f> realWorldPoints ; 
+		vector<int>  frameNumList ;
 		int frameNum ; 
 		cout<< "Total Frames :"<< cap.get(CV_CAP_PROP_FRAME_COUNT)<<endl ;
 		cap>>frame;
@@ -317,6 +326,7 @@ int main()
 			if(numOfSelectedPoint>0){
 				imagePoints.push_back(Point2d(sumX/numOfSelectedPoint,sumY/numOfSelectedPoint) );
 				timeStampList.push_back(firstFrameTime+frameNum*perFrame);
+				frameNumList.push_back(frameNum);
 			}
 			Mat dilateElement = getStructuringElement( MORPH_RECT,Size(10,10));
                 
@@ -451,10 +461,68 @@ int main()
 	 ofstream file("singleVideoProcessResult.txt");
 	 file<< fixed ;
 	 for( int i = 0; i < realWorldPoints.size(); i++ ){
-		 cout<<  realWorldPoints[i].x<<","<<realWorldPoints[i].y<<","<<realWorldPoints[i].z<<","<< timeStampList[i] <<endl ; 
-		 file<< realWorldPoints[i].x<<","<<realWorldPoints[i].y<<","<<realWorldPoints[i].z<<","<< timeStampList[i]<<endl; 
+		 cout<< imagePoints[i].x<<","<<imagePoints[i].y<<","<< realWorldPoints[i].x<<","<<realWorldPoints[i].y<<","<<realWorldPoints[i].z<<","<<frameNumList[i]<<","<< timeStampList[i] <<endl ; 
+		 file<<imagePoints[i].x<<","<<imagePoints[i].y<<","<< realWorldPoints[i].x<<","<<realWorldPoints[i].y<<","<<realWorldPoints[i].z<<","<<frameNumList[i]<< ","<< timeStampList[i]<<endl; 
 	 }
 	 file.close(); 
+
+
+	 /*开始手动标记*/
+
+	 namedWindow("hand",1);
+	
+	setMouseCallback("hand",onMouse,&frame);
+	  VideoCapture cap2("recordVideo.avi");
+        
+        if (!cap2.isOpened())
+        {
+            cout<< "Error Acquireing video feed\n";
+            return -1;
+        }
+
+		 cap2 >> frame;
+
+        while (cap2.get(CV_CAP_PROP_POS_FRAMES)< cap2.get(CV_CAP_PROP_FRAME_COUNT)) {
+           
+			
+  
+
+			frameNum_hand = cap2.get(CV_CAP_PROP_POS_FRAMES) ;
+
+            cap2 >> frame;
+           
+			cout<<"Current frame Num :"<<frameNum_hand ; 
+			
+				//imagePoints.push_back(Point2d(sumX/numOfSelectedPoint,sumY/numOfSelectedPoint) );
+			//	timeStampList.push_back(firstFrameTime+frameNum*perFrame);
+		
+		
+            putText(frame, "hi:"+intToString(frameNum_hand), Point(50,100), FONT_HERSHEY_SIMPLEX, 1, Scalar(0,200,200), 4);
+            imshow("hand", frame);
+         
+           
+
+            if (waitKey(3000) >= 0)
+            {
+                break;
+            }
+
+        }
+
+		//save 手动标记结果
+		ofstream file_hand("singleResultByHand.txt");
+	 file_hand<< fixed ;
+	 for( int i = 0; i < imagePoints_hand.size(); i++ ){
+		 cout<< imagePoints_hand[i].x<<","<<imagePoints_hand[i].y<<","<< realWorldPoints_hand[i].x<<","<<realWorldPoints_hand[i].y<<","<<realWorldPoints_hand[i].z<<","<<frameNumList_hand[i]<<","<< firstFrameTime+frameNumList_hand[i]*perFrame <<endl ; 
+		 file_hand<<imagePoints_hand[i].x<<","<<imagePoints_hand[i].y<<","<< realWorldPoints_hand[i].x<<","<<realWorldPoints_hand[i].y<<","<<realWorldPoints_hand[i].z<<","<<frameNumList_hand[i]<<","<<  firstFrameTime+frameNumList_hand[i]*perFrame<<endl; 
+	 }
+	 file_hand.close(); 
+
+		 cout<< "by hand done"<<endl ;
+        cap.release();
+
+
+
 	 cout<<"end"<<endl;
 	// waitKey(0);
 
@@ -467,55 +535,38 @@ void doTranslation(){
 	cout<<"doTranslation begin "<<endl;
 	//Mat m = (Mat_<float>(3,3) << 1.4572068353989741e+003, 0, 3.1950000000000000e+002,0, 1.4572068353989741e+003, 2.3950000000000000e+002,0, 0, 1);
 	cv::Mat tempMat, tempMat2;
-			double s, zConst = 0;
+	double s, zConst = 0;
 			
-			rotationMatrix.convertTo(rotationMatrix,CV_64FC1);
-			cameraMatrix.convertTo(cameraMatrix,CV_64FC1);
+	rotationMatrix.convertTo(rotationMatrix,CV_64FC1);
+	cameraMatrix.convertTo(cameraMatrix,CV_64FC1);
 				
-			tempMat = rotationMatrix.inv() * cameraMatrix.inv() * uvPoint;
+	tempMat = rotationMatrix.inv() * cameraMatrix.inv() * uvPoint;
 			
 
-			tempMat2 = rotationMatrix.inv() * tvec;
+	tempMat2 = rotationMatrix.inv() * tvec;
 		
-			s = zConst + tempMat2.at<double>(2,0);
-			s /= tempMat.at<double>(2,0);
+	s = zConst + tempMat2.at<double>(2,0);
+	s /= tempMat.at<double>(2,0);
 
-		/*	double m11,m12,m14,m21,m22,m24,m31,m32,m34 ; 
-			double u,v;
-			double ay,ax,by,bx,c ; 
-			m11 = rotationMatrix.at<double>(0,0);
-			m12 = rotationMatrix.at<double>(0,1);
-			m21 = rotationMatrix.at<double>(1,0);
-			m22 = rotationMatrix.at<double>(1,1);
-			m31 = rotationMatrix.at<double>(2,0);
-			m32 = rotationMatrix.at<double>(2,1);
+	
 
-			m14 = tvec.at<double>(0,0);
-			m24 = tvec.at<double>(1,0);
-			m34 = tvec.at<double>(2,0);
+	cout<<"s"<<s<<endl ; 
 
-			u = uvPoint.at<double>(0,0);
-			v = uvPoint.at<double>(1,0);
-
-			c= m12*m21-m11*m22  ;
-			ay = m21*u-m11*v ; 
-			by = m14*m21 - m11*m24 ;
-
-			ax = m22*u-m12*v ; 
-			bx = m14*m22-m12*m24 ; 
-
-
-			s = ((m31*bx-m32*by)/c+m34)/(1+(m31*ax-m32*ay)/c);*/
-
-			cout<<"s"<<s<<endl ; 
-
-			cv::Mat wcPoint = rotationMatrix.inv() * (s * cameraMatrix.inv() * uvPoint - tvec);
+	cv::Mat wcPoint = rotationMatrix.inv() * (s * cameraMatrix.inv() * uvPoint - tvec);
 		
 
-			Point3f realPoint(wcPoint.at<double>(0, 0), wcPoint.at<double>(1, 0), wcPoint.at<double>(2, 0));
+	Point3f realPoint(wcPoint.at<double>(0, 0), wcPoint.at<double>(1, 0), wcPoint.at<double>(2, 0));
 
-			cout<<"image point "<<endl<<uvPoint<< endl<< "to real point "<<endl <<wcPoint<<endl<<endl ;
+	cout<<"image point "<<endl<<uvPoint<< endl<< "to real point "<<endl <<wcPoint<<endl<<endl ;
+	/*static	 	vector<Point2d> imagePoints_hand  ; 
+	static		vector<double>  timeStampList_hand  ; 
+	static		vector<Point3f> realWorldPoints_hand ; 
+	static		vector<int>     frameNumList_hand ;*/
+	imagePoints_hand.push_back(Point2d(uvPoint.at<double>(0,0),uvPoint.at<double>(1,0)));
+	realWorldPoints_hand.push_back(realPoint);
+	frameNumList_hand.push_back(frameNum_hand);
 }
+
 void onMouse(int event,int x,int y, int flags, void* userdata){
 	 // 左单击 EVENT_LBUTTONDOWN 右单击 EVENT_RBUTTONDOWN 中间 EVENT_MBUTTONDOWN 移动 EVENT_MOUSEMOVE 
 	//cout << " button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
@@ -524,15 +575,17 @@ void onMouse(int event,int x,int y, int flags, void* userdata){
      {
         cout << "Left button of the mouse is clicked - position (" << x << ", " << y << ")" << endl;
 		
-		if(count_flag>=4){
+		if(count_flag<4){
+
+			contour.push_back(Point(x,y));
+	 	
+			count_flag= count_flag +1   ;
+		}else if(count_flag>=4){
+			
 			uvPoint.at<double>(0,0) = x+0.0; //got this point using mouse callback
 			uvPoint.at<double>(1,0) = y+0.0;
 			cout<<"uvPoint"<<uvPoint<<endl ; 
 			doTranslation();
-			count_flag= count_flag +1   ; 
-		}else{
-			contour.push_back(Point(x,y));
-	 	
 			count_flag= count_flag +1   ; 
 		}
 		
