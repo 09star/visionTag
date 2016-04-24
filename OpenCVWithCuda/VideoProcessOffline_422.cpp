@@ -165,7 +165,7 @@ static Mat rvec =(Mat_<double>(1,3));
 static Mat tvec =(Mat_<double>(1,3)) ;
 static Mat rotationMatrix =(Mat_<double>(3,3)); 
 
-
+vector<double> videoFrameTime ; 
 // 手动
 static	 vector<Point2d> imagePoints_hand  ; 
 static	vector<double>  timeStampList_hand  ; 
@@ -231,9 +231,15 @@ int main()
 		//double firstFrameTime =  1458281292307;
 		//double lastFrameTime = 1458281301326;
 		 ifstream infile;
-		infile.open("recordVideo.txt");
-    
-		double firstFrameTime ; 
+		infile.open("frameTime.txt");
+		
+		double tempFrameTime ; 
+		while(!infile.eof()){
+			infile>>tempFrameTime;
+			infile>>tempFrameTime;
+			videoFrameTime.push_back(tempFrameTime);
+		}
+		/**double firstFrameTime ; 
 		double lastFrameTime;
 		double totalFrame ;
   
@@ -254,9 +260,9 @@ int main()
       
 		}
 		infile.close();
-		
+		*/
 
-		double perFrame = (lastFrameTime-firstFrameTime)/(totalFrames-1);
+		//double perFrame = (lastFrameTime-firstFrameTime)/(totalFrames-1);
 
 		vector<Point2d> imagePoints  ; 
 		vector<double> timeStampList  ; 
@@ -325,7 +331,8 @@ int main()
 
 			if(numOfSelectedPoint>0){
 				imagePoints.push_back(Point2d(sumX/numOfSelectedPoint,sumY/numOfSelectedPoint) );
-				timeStampList.push_back(firstFrameTime+frameNum*perFrame);
+				//timeStampList.push_back(firstFrameTime+frameNum*perFrame);
+				timeStampList.push_back(videoFrameTime[frameNum]);
 				frameNumList.push_back(frameNum);
 			}
 			Mat dilateElement = getStructuringElement( MORPH_RECT,Size(10,10));
@@ -513,8 +520,8 @@ int main()
 		ofstream file_hand("singleResultByHand.txt");
 	 file_hand<< fixed ;
 	 for( int i = 0; i < imagePoints_hand.size(); i++ ){
-		 cout<< imagePoints_hand[i].x<<","<<imagePoints_hand[i].y<<","<< realWorldPoints_hand[i].x<<","<<realWorldPoints_hand[i].y<<","<<realWorldPoints_hand[i].z<<","<<frameNumList_hand[i]<<","<< firstFrameTime+frameNumList_hand[i]*perFrame <<endl ; 
-		 file_hand<<imagePoints_hand[i].x<<","<<imagePoints_hand[i].y<<","<< realWorldPoints_hand[i].x<<","<<realWorldPoints_hand[i].y<<","<<realWorldPoints_hand[i].z<<","<<frameNumList_hand[i]<<","<<  firstFrameTime+frameNumList_hand[i]*perFrame<<endl; 
+		 cout<< imagePoints_hand[i].x<<","<<imagePoints_hand[i].y<<","<< realWorldPoints_hand[i].x<<","<<realWorldPoints_hand[i].y<<","<<realWorldPoints_hand[i].z<<","<<frameNumList_hand[i]<<","<< videoFrameTime[frameNumList_hand[i]] <<endl ; 
+		 file_hand<<imagePoints_hand[i].x<<","<<imagePoints_hand[i].y<<","<< realWorldPoints_hand[i].x<<","<<realWorldPoints_hand[i].y<<","<<realWorldPoints_hand[i].z<<","<<frameNumList_hand[i]<<","<<  videoFrameTime[frameNumList_hand[i]]<<endl; 
 	 }
 	 file_hand.close(); 
 

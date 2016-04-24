@@ -209,9 +209,9 @@ int main()
 
 		double totalFrames = cap.get(CV_CAP_PROP_FRAME_COUNT); 
 
-		double firstFrameTime =  1457528633080; 
+		double firstFrameTime =  1458281292307; 
 
-		double lastFrameTime = 1457528642103;
+		double lastFrameTime = 1458281301326;
 
 		double perFrame = (lastFrameTime-firstFrameTime)/(totalFrames-1);
 
@@ -280,7 +280,7 @@ int main()
 			cout<<sumX/numOfSelectedPoint<<","<<sumY/numOfSelectedPoint <<endl;
 
 			if(numOfSelectedPoint>0){
-				imagePoints.push_back(Point2d((int)(sumX/numOfSelectedPoint),(int)(sumY/numOfSelectedPoint) ));
+				imagePoints.push_back(Point2d(sumX/numOfSelectedPoint,sumY/numOfSelectedPoint) );
 				timeStampList.push_back(firstFrameTime+frameNum*perFrame);
 			}
 			Mat dilateElement = getStructuringElement( MORPH_RECT,Size(10,10));

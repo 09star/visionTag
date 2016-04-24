@@ -11,7 +11,7 @@
 #include <opencv2/opencv.hpp>
 #include "opencv2\highgui\highgui.hpp"
 #include "opencv2\imgproc\imgproc.hpp"
-
+#include <fstream>
 using namespace cv ; 
 using namespace std ; 
 
@@ -27,6 +27,26 @@ static Mat img  ;
 static Mat copyImg;
 /*
 
+
+ <camera_matrix type_id="opencv-matrix">
+  <rows>3</rows>
+  <cols>3</cols>
+  <dt>d</dt>
+  <data>
+    5.6419149441423078e+003 0. 3.1950000000000000e+002 0.
+    5.6419149441423078e+003 2.3950000000000000e+002 0. 0. 1.</data></camera_matrix>
+<distortion_coefficients type_id="opencv-matrix">
+  <rows>5</rows>
+  <cols>1</cols>
+  <dt>d</dt>
+  <data>
+    2.0802966198425468e+000 7.2382438750757342e+002 0. 0.
+    -7.9534832049737668e+002</data></distortion_coefficients>
+<avg_reprojection_error>2.2746307861524998e-001</avg_reprojection_error>
+
+static Mat cameraMatrix = (Mat_<float>(3,3) << 5.6419149441423078e+003, 0, 3.1950000000000000e+002,0, 5.6419149441423078e+003, 2.3950000000000000e+002,0, 0, 1);
+static Mat distCoeffs = (Mat_<float>(5,1) << 2.0802966198425468e+000, 7.2382438750757342e+002, 0, 0, -7.9534832049737668e+002);
+============================
 <camera_matrix type_id="opencv-matrix">
   <rows>3</rows>
   <cols>3</cols>
@@ -42,6 +62,8 @@ static Mat copyImg;
     5.6210676080216342e-002 2.0568555032574163e+000 0. 0.
     -4.4769469616519928e+001</data></distortion_coefficients>
 
+	static Mat cameraMatrix = (Mat_<float>(3,3) << 1.4572068353989741e+003, 0, 3.1950000000000000e+002,0, 1.4572068353989741e+003, 2.3950000000000000e+002,0, 0, 1);
+static Mat distCoeffs = (Mat_<float>(5,1) << 5.6210676080216342e-002, 2.0568555032574163e+000, 0, 0, -4.4769469616519928e+001);
 */
 static Mat cameraMatrix = (Mat_<float>(3,3) << 1.4572068353989741e+003, 0, 3.1950000000000000e+002,0, 1.4572068353989741e+003, 2.3950000000000000e+002,0, 0, 1);
 static Mat distCoeffs = (Mat_<float>(5,1) << 5.6210676080216342e-002, 2.0568555032574163e+000, 0, 0, -4.4769469616519928e+001);
@@ -51,16 +73,19 @@ static 	Mat  uvPoint = (Mat_<double>(3,1) << 0,0,1); ;
 static Mat rvec =(Mat_<double>(1,3)); 
 static Mat tvec =(Mat_<double>(1,3)) ;
 static Mat rotationMatrix =(Mat_<double>(3,3)); 
-int main(){
 
+static ofstream file("projectResult.txt");
+	 
+int main(){
+	file<< fixed ;
 	int x = -1;
 	int y = -1 ; 
 
 	vector<Point3f> objcetPoints ;
-	objcetPoints.push_back(Point3f(0,150,0));
-	objcetPoints.push_back(Point3f(150,0,0));
-	objcetPoints.push_back(Point3f(0,-150,0));
-	objcetPoints.push_back(Point3f(-150,0,0));
+	objcetPoints.push_back(Point3f(0,300,0));
+	objcetPoints.push_back(Point3f(300,0,0));
+	objcetPoints.push_back(Point3f(0,-300,0));
+	objcetPoints.push_back(Point3f(-300,0,0));
 
 	
 
@@ -138,7 +163,28 @@ int main(){
 	}
 	imshow("window1",img);
 	
+/*
+	Point3f uPoint = Point3f(0,50,0);
+	Point3f urPoint = Point3f(50,50,0);
+	Point3f rPoint = Point3f(50,0,0);
+	Point3f rdPoint = Point3f(50,-50,0);
+	Point3f dPoint = Point3f(0,-50,0);
+	Point3f ldPoint = Point3f(-50,-50,0);
+	Point3f lPoint = Point3f(-50,0,0);
+	Point3f luPoint = Point3f(-50,50,0);
+	for(int j=1;j<6;j++){
+		file<<j*uPoint.x<<","<<j*uPoint.y<<","<<j*uPoint.z<<endl; 
+		file<<j*urPoint.x<<","<<j*urPoint.y<<","<<j*urPoint.z<<endl; 
+		file<<j*rPoint.x<<","<<j*rPoint.y<<","<<j*rPoint.z<<endl; 
+		file<<j*rdPoint.x<<","<<j*rdPoint.y<<","<<j*rdPoint.z<<endl; 
+		file<<j*dPoint.x<<","<<j*dPoint.y<<","<<j*dPoint.z<<endl; 
+		file<<j*ldPoint.x<<","<<j*ldPoint.y<<","<<j*ldPoint.z<<endl; 
+		file<<j*lPoint.x<<","<<j*lPoint.y<<","<<j*lPoint.z<<endl; 
+		file<<j*luPoint.x<<","<<j*luPoint.y<<","<<j*luPoint.z<<endl; 
+	}
+	*/
 	waitKey(0);
+	file.close(); 
 	return 0 ; 
 }
 
@@ -192,7 +238,10 @@ void doTranslation(){
 		
 
 			Point3f realPoint(wcPoint.at<double>(0, 0), wcPoint.at<double>(1, 0), wcPoint.at<double>(2, 0));
-
+		
+		    file<<uvPoint.at<double>(0, 0)<<","<<uvPoint.at<double>(1, 0)<<","<<wcPoint.at<double>(0, 0)<<","<< wcPoint.at<double>(1, 0)<<","<<wcPoint.at<double>(2, 0)<<endl; 
+	
+	
 			cout<<"image point "<<endl<<uvPoint<< endl<< "to real point "<<endl <<wcPoint<<endl<<endl ;
 }
 void onMouse(int event,int x,int y, int flags, void* userdata){
@@ -208,10 +257,16 @@ void onMouse(int event,int x,int y, int flags, void* userdata){
 			uvPoint.at<double>(1,0) = y+0.0;
 			cout<<"uvPoint"<<uvPoint<<endl ; 
 			doTranslation();
+			// for draw
+			contour.push_back(Point(x,y));
+			for( int i = 0; i < contour.size(); i++ ){
+				rectangle(img, contour[i],  contour[i], Scalar(0, 0, 255), 3, 8, 0); // RED point
+			}
+			imshow("window1",img);
 			count_flag= count_flag +1   ; 
 		}else{
 			contour.push_back(Point(x,y));
-	 	
+	 		
 			count_flag= count_flag +1   ; 
 		}
 		

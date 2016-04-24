@@ -44,8 +44,11 @@ int main(){
 
    int frame_width=   vcap.get(CV_CAP_PROP_FRAME_WIDTH);
    int frame_height=   vcap.get(CV_CAP_PROP_FRAME_HEIGHT);
-   cout<< "CV_CAP_PROP_FPS"<<vcap.get(CV_CAP_PROP_FPS) ; 
-   VideoWriter video("recordVideo.avi",CV_FOURCC('M','J','P','G'),24, Size(frame_width,frame_height),true);
+   cout<< "CV_CAP_PROP_FPS"<<vcap.get(CV_CAP_PROP_FPS) ;
+   String currentTimeStr = getCurrentTime(); 
+   String videoName = "recordVideo"+currentTimeStr+".avi";
+   String videoFileTxt = "recordVideo"+currentTimeStr+".txt";
+   VideoWriter video(videoName,CV_FOURCC('M','J','P','G'),24, Size(frame_width,frame_height),true);
    
    unsigned long Atime =0, Btime =0;
    double TakeTime;
@@ -54,20 +57,33 @@ int main(){
 	int frameCount = 0 ;
 
 	String firstFrameTime , lastFrameTime ; 
+	/**
+	
+	 ofstream file_hand("singleResultByHand.txt");
+	 file_hand<< fixed ;
+	 for( int i = 0; i < imagePoints_hand.size(); i++ ){
+		 cout<< imagePoints_hand[i].x<<","<<imagePoints_hand[i].y<<","<< realWorldPoints_hand[i].x<<","<<realWorldPoints_hand[i].y<<","<<realWorldPoints_hand[i].z<<","<<frameNumList_hand[i]<<","<< firstFrameTime+frameNumList_hand[i]*perFrame <<endl ; 
+		 file_hand<<imagePoints_hand[i].x<<","<<imagePoints_hand[i].y<<","<< realWorldPoints_hand[i].x<<","<<realWorldPoints_hand[i].y<<","<<realWorldPoints_hand[i].z<<","<<frameNumList_hand[i]<<","<<  firstFrameTime+frameNumList_hand[i]*perFrame<<endl; 
+	 }
+	 file_hand.close();
+
+	*/
+	 ofstream file("frameTime.txt");
+	  file<< fixed ;
    for(;;){
 	  
        Mat frame;
        vcap >> frame;
-	   if(frameCount == 0){
-		   firstFrameTime = getCurrentTime()  ;
-	   }
+	   
 	   frameCount++  ; 
+	  // file<<frameCount<<","<<getCurrentTime()<<endl ; 
+	    file<<getCurrentTime()<<endl ;  
        video.write(frame);
 	   Btime = getTickCount();
 
 	   TakeTime = (Btime - Atime) / getTickFrequency();
 	   if(TakeTime > totalTime){
-		   lastFrameTime = getCurrentTime();
+		  
 		   break ; 
 	   }
 	   imshow( "Frame", frame );
@@ -75,12 +91,9 @@ int main(){
        if( c == 27 ) break;
     }
 
-  ofstream file("recordVideo.txt");
-  file<< firstFrameTime <<endl; 
-  file<< lastFrameTime << endl ;
-  file<< frameCount <<endl ; 
+   file.close() ; 
 
-  file.close(); 
+  
   return 0;
 
 }

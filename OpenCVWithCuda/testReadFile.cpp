@@ -6,7 +6,7 @@ using namespace std;
  
 int main()
 {
-    vector<double> v;
+   /** vector<double> v;
      
     ifstream infile;
      
@@ -36,5 +36,21 @@ int main()
     infile.close();
      
 	cout<< lastFrameTime-firstFrameTime<<" "<<lastFrameTime<<" "<<totalFrame<<" "<<(lastFrameTime-firstFrameTime)/totalFrame;
-    return 0;
+    */
+	   ifstream infile;
+	
+	infile.open("frameTime.txt");
+		vector<double> videoFrameTime ; 
+		double tempFrameTime ; 
+		while(!infile.eof()){
+			infile>>tempFrameTime;
+			cout<<tempFrameTime<<endl;
+			infile>>tempFrameTime;
+			cout<<tempFrameTime<<endl;
+			videoFrameTime.push_back(tempFrameTime);
+		}
+		for(int i=0;i<videoFrameTime.size();i++){
+			cout<<videoFrameTime[i]<<endl;
+		}
+	return 0;
 }

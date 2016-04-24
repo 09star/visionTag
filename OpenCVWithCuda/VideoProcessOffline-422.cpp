@@ -231,9 +231,15 @@ int main()
 		//double firstFrameTime =  1458281292307;
 		//double lastFrameTime = 1458281301326;
 		 ifstream infile;
-		infile.open("recordVideo.txt");
-    
-		double firstFrameTime ; 
+		infile.open("frameTime.txt");
+		vector<double> videoFrameTime ; 
+		double tempFrameTime ; 
+		while(!infile.eof()){
+			infile>>tempFrameTime;
+			infile>>tempFrameTime;
+			videoFrameTime.push_back(tempFrameTime);
+		}
+		/**double firstFrameTime ; 
 		double lastFrameTime;
 		double totalFrame ;
   
@@ -254,9 +260,9 @@ int main()
       
 		}
 		infile.close();
-		
+		*/
 
-		double perFrame = (lastFrameTime-firstFrameTime)/(totalFrames-1);
+		//double perFrame = (lastFrameTime-firstFrameTime)/(totalFrames-1);
 
 		vector<Point2d> imagePoints  ; 
 		vector<double> timeStampList  ; 
@@ -325,7 +331,8 @@ int main()
 
 			if(numOfSelectedPoint>0){
 				imagePoints.push_back(Point2d(sumX/numOfSelectedPoint,sumY/numOfSelectedPoint) );
-				timeStampList.push_back(firstFrameTime+frameNum*perFrame);
+				//timeStampList.push_back(firstFrameTime+frameNum*perFrame);
+				timeStampList.push_back(videoFrameTime[frameNum]);
 				frameNumList.push_back(frameNum);
 			}
 			Mat dilateElement = getStructuringElement( MORPH_RECT,Size(10,10));
